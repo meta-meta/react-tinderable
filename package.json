@@ -42,6 +42,7 @@
     "watchify": "^2.3.0"
   },
   "dependencies": {
+    "classnames": "^2.2.0",
     "hammerjs": "^2.0.4",
     "merge": "^1.2.0"
   }

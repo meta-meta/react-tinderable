@@ -1,5 +1,6 @@
 /*global require,module,setTimeout*/
-var React = require('react/addons'),
+var React = require('react'),
+    classNames = require('classnames'),
     Hammer = require('hammerjs'),
     merge = require('merge');
 
@@ -53,7 +54,7 @@ var Card = React.createClass({
             backgroundImage: 'url("images/' + this.props.image + '")'
         }, this.props.style);
 
-        var classes = React.addons.classSet(merge(
+        var classes = classNames(merge(
             {
                 card: true
             },
@@ -256,12 +257,12 @@ var Tinderable = React.createClass({
             return React.createElement(component, props);
         }, this);
 
-        var classesAlertLeft = React.addons.classSet({
+        var classesAlertLeft = classNames({
             'alert-visible': this.state.alertLeft,
             'alert-left': true,
             'alert': true
         });
-        var classesAlertRight = React.addons.classSet({
+        var classesAlertRight = classNames({
             'alert-visible': this.state.alertRight,
             'alert-right': true,
             'alert': true
