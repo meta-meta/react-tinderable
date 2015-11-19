@@ -31,7 +31,8 @@
   },
   "author": "Samuel El-Borai <samuel.elborai@gmail.com>",
   "peerDependencies": {
-    "react": ">=0.12"
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2"
   },
   "devDependencies": {
     "browser-sync": "^2.0.1",
