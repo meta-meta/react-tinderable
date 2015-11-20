@@ -5,6 +5,15 @@ var React = require('react'),
     Hammer = require('hammerjs'),
     merge = require('merge');
 
+function calculateInitialPosition(instance) {
+    var card = ReactDOM.findDOMNode(instance);
+    var container = card.parentElement;
+    return {
+        x: Math.round((container.offsetWidth - card.offsetWidth) / 2),
+        y: Math.round((container.offsetHeight - card.offsetHeight) / 2)
+    };
+}
+
 var Card = React.createClass({
     getInitialState: function() {
         return {
@@ -16,16 +25,8 @@ var Card = React.createClass({
     },
 
     setInitialPosition: function() {
-        var screen = document.getElementById('master-root'),
-            card = ReactDOM.findDOMNode(this),
-
-            initialPosition = {
-                x: Math.round((screen.offsetWidth - card.offsetWidth) / 2),
-                y: Math.round((screen.offsetHeight - card.offsetHeight) / 2)
-            };
-
         this.setState({
-            initialPosition: initialPosition
+            initialPosition: calculateInitialPosition(this)
         });
     },
 
@@ -62,12 +63,7 @@ var Card = React.createClass({
             this.props.classes
         ));
 
-        return (
-                <div style={style} className={classes}>
-                <h1>{this.props.title}</h1>
-                <p>{this.props.text}</p>
-                </div>
-        );
+        return <div style={style} className={classes}/>;
     }
 });
 
@@ -89,13 +85,10 @@ var DraggableCard = React.createClass({
     },
 
     resetPosition: function() {
-        var screen = document.getElementById('master-root'),
-            card = ReactDOM.findDOMNode(this);
+        var initialPosition = calculateInitialPosition(this);
 
-        var initialPosition = {
-            x: Math.round((screen.offsetWidth - card.offsetWidth) / 2),
-            y: Math.round((screen.offsetHeight - card.offsetHeight) / 2)
-        };
+        this.props.onNearLeft(0);
+        this.props.onNearRight(0);
 
         var initialState = this.getInitialState();
         this.setState(
@@ -108,6 +101,13 @@ var DraggableCard = React.createClass({
         );
     },
 
+    getDistanceToRightEdge: function() {
+        var card = ReactDOM.findDOMNode(this);
+        var container = card.parentElement;
+
+        return container.offsetWidth - (this.state.x + (card.offsetWidth - 50));
+    },
+
     panHandlers: {
         panstart: function() {
             this.setState({
@@ -118,14 +118,11 @@ var DraggableCard = React.createClass({
                 }
             });
         },
-        panend: function(ev) {
-            var screen = document.getElementById('master-root'),
-                card = ReactDOM.findDOMNode(this);
-
+        panend: function() {
             if (this.state.x < -50) {
-                this.props.onOutScreenLeft(this.props.cardId);
-            } else if ((this.state.x + (card.offsetWidth - 50)) > screen.offsetWidth) {
-                this.props.onOutScreenRight(this.props.cardId);
+                this.props.onOutScreenLeft();
+            } else if (this.getDistanceToRightEdge() < 0) {
+                this.props.onOutScreenRight();
             } else {
                 this.resetPosition();
                 this.setState({
@@ -134,9 +131,22 @@ var DraggableCard = React.createClass({
             }
         },
         panmove: function(ev) {
-            this.setState(this.calculatePosition(
-                ev.deltaX, ev.deltaY
-            ));
+            var position = this.calculatePosition(ev.deltaX, ev.deltaY);
+
+            function constrain(n) {
+                return Math.min(1, 1 - n);
+            }
+
+            if(position.x < 0) {
+                this.props.onNearLeft(constrain((50 + position.x) / 50));
+            } else {
+                var distToRightEdge = this.getDistanceToRightEdge();
+                if(distToRightEdge < 50) {
+                    this.props.onNearRight(constrain(distToRightEdge / 50));
+                }
+            }
+
+            this.setState(position);
         },
         pancancel: function(ev) {
             console.log(ev.type);
@@ -203,7 +213,8 @@ var DraggableCard = React.createClass({
         };
 
         var classes = {
-            animate: this.state.animation
+            animate: this.state.animation,
+            'card-draggable': true
         };
 
         return (<Card {...this.props}
@@ -213,70 +224,38 @@ var DraggableCard = React.createClass({
 });
 
 var Tinderable = React.createClass({
-    getInitialState: function() {
-        return {
-            cards: this.props.initialCardsData,
-            alertLeft: false,
-            alertRight: false
-        };
-    },
-
-    removeCard: function(side, cardId) {
-        setTimeout(function(){
-            if (side === 'left') {
-                this.setState({alertLeft: false});
-            } else if (side === 'right') {
-                this.setState({alertRight: false});
-            }
-        }.bind(this), 3000);
-
-        this.setState({
-            cards: this.state.cards.filter(function(c) {
-                return c.id !== cardId;
-            }),
-            alertLeft: side === 'left',
-            alertRight: side === 'right'
-        });
+    propTypes: {
+        cards: React.PropTypes.array.isRequired,
+        onSwipeLeft: React.PropTypes.func.isRequired,
+        onSwipeRight: React.PropTypes.func.isRequired,
+        onNearLeft: React.PropTypes.func,
+        onNearRight: React.PropTypes.func
     },
 
     render: function() {
-        var cards = this.state.cards.map(function(c, index, coll) {
-            var props = {
-                cardId: c.id,
-                index: index,
-                onOutScreenLeft: this.removeCard.bind(this, 'left'),
-                onOutScreenRight: this.removeCard.bind(this, 'right'),
-                title: c.title,
-                text: c.text,
-                image: c.image
-            };
+        var cards = this.props.cards
+            .slice(this.props.cards.length - 2) // no need to display more than 2 cards at once
+            .map(function (c, index, coll) {
+                var props = {
+                    index: index,
+                    onOutScreenLeft: this.props.onSwipeLeft,
+                    onOutScreenRight: this.props.onSwipeRight,
+                    onNearLeft: this.props.onNearLeft,
+                    onNearRight: this.props.onNearRight,
+                    image: c.image
+                };
 
-            var component = (index === (coll.length - 1)) ?
-                    DraggableCard:
+                var component = (index === (coll.length - 1)) ?
+                    DraggableCard :
                     Card;
 
-            return React.createElement(component, props);
-        }, this);
-
-        var classesAlertLeft = classNames({
-            'alert-visible': this.state.alertLeft,
-            'alert-left': true,
-            'alert': true
-        });
-        var classesAlertRight = classNames({
-            'alert-visible': this.state.alertRight,
-            'alert-right': true,
-            'alert': true
-        });
+                return React.createElement(component, props);
+            }, this);
 
         return (
-                <div>
-                <div className={classesAlertLeft}>left</div>
-                <div className={classesAlertRight}>right</div>
-                <div id="cards">
+            <div className="cards">
                 {cards}
             </div>
-                </div>
         );
     }
 });
