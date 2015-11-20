@@ -190,11 +190,10 @@ var DraggableCard = React.createClass({
         window.addEventListener('resize', this.resetPosition);
     },
 
-    componentWillUnmount: function() {
-	this.hammer.stop();
-	this.hammer.destroy();
-	this.hammer = null;
-
+    componentWillUnmount: function () {
+        this.hammer.stop();
+        this.hammer.destroy();
+        this.hammer = null;
         window.removeEventListener('resize', this.resetPosition);
     },
 
