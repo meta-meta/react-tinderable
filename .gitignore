@@ -1,5 +1,5 @@
 node_modules
-lib
 *.log
+lib/.module-cache
 examples/bundle-examples.js
 .idea/
