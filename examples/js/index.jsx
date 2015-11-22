@@ -2,57 +2,82 @@
 var React = require('react'),
     Tinderable = require('../../lib/tinderable.js');
 
-var cardsData = [
-    {
-        title: 'A wonderful day',
-        text: '—— - ——— - - - ——— ———— - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— -',
-        image: 'images/portrait-1.jpg',
-        id: '1'
+
+var Slideshow = React.createClass({
+    getInitialState: function() {
+        return {
+            cards: [
+                {
+                    title: 'Face Value',
+                    text: '—— - ——— - - - ——— ———— - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— -',
+                    image: 'http://www.philcollins-fr.com/Discographie/albums/01facevalue.jpg',
+                    id: '0',
+                },
+                {
+                    title: 'No Jacket Required',
+                    text: '—— - ——— - - - ——— ———— - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— -',
+                    image: 'http://www.philcollins-fr.com/Discographie/albums/03jacket.jpg',
+                    id: '1',
+                },
+                {
+                    title: '...But Seriously',
+                    text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ——— ———— ',
+                    image: 'http://www.philcollins-fr.com/Discographie/albums/04butseriously.jpg',
+                    id: '2',
+                },
+                {
+                    title: 'Hello, I must be going',
+                    text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ———',
+                    image: 'http://ecx.images-amazon.com/images/I/91hWxUcdXBL._SL1500_.jpg',
+                    id: '3',
+                },
+                {
+                    title: 'Greatest Hits',
+                    text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ———',
+                    image: 'http://ecx.images-amazon.com/images/I/71Ijj8VWNeL._SL1000_.jpg',
+                    id: '4',
+                },
+                {
+                    title: 'Testify',
+                    text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ———',
+                    image: 'http://img.maniadb.com/images/album/117/117460_1_f.jpg',
+                    id: '5',
+                },
+            ],
+        }
     },
-    {
-        title: 'My amazing journey',
-        text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ——— ———— ',
-        image: 'images/portrait-2.jpg',
-        id: '2'
-    },
-    {
-        title: 'Three recipes without cocoa',
-        text: ' - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ——— - - - ———',
-        image: 'images/portrait-3.jpg',
-        id: '3'
-    },
-    {
-        title: 'Generic clickbait title',
-        text: ' —— ———— - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ———— —— - ——— - - - ——— ———— - — ——— —— - ————— - - ———— - ——— ',
-        image: 'images/portrait-4.jpg',
-        id: '4'
+
+    render: function() {
+        var self = this;
+
+        function removeCard() {
+            self.setState({cards: self.state.cards.slice(0, self.state.cards.length - 1)});
+        }
+
+        function onNearLeft(amt) {
+            console.log('near left ', amt);
+        }
+
+        function onNearRight(amt) {
+            console.log('near right ', amt);
+        }
+
+        return (
+            <div className="slideshow">
+                <Tinderable
+                    cards={this.state.cards}
+                    onSwipeLeft={removeCard}
+                    onSwipeRight={removeCard}
+                    onNearLeft={onNearLeft}
+                    onNearRight={onNearRight}
+                />
+
+            </div>
+        );
     }
-];
-
-var onSwipeLeft = function () {
-    console.log('swipe left');
-};
-
-var onSwipeRight = function () {
-    console.log('swipe right');
-};
-
-var onNearLeft = function (amt) {
-    console.log('near left ', amt);
-};
-
-var onNearRight = function (amt) {
-    console.log('near right ', amt);
-};
+});
 
 React.render(
-    <Tinderable
-        cards={cardsData}
-        onSwipeLeft={onSwipeLeft}
-        onSwipeRight={onSwipeRight}
-        onNearLeft={onNearLeft}
-        onNearRight={onNearRight}
-    />,
-
+    <Slideshow />,
     document.getElementById('master-root')
 );
