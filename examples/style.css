@@ -57,36 +57,5 @@ li {
 }
 
 .animate {
-    transition: transform .2s;
-}
-
-.alert {
-    width: 45%;
-    height: 10%;
-    position: absolute;
-    top: 0;
-    z-index: 9999;
-    opacity: 0;
-    transition: opacity .5s;
-    color: white;
-    vertical-align: middle;
-    line-height: 3rem;
-}
-
-.alert-visible {
-    opacity: 1;
-}
-
-.alert-right {
-    right: 0;
-    background: red;
-    border-top-left-radius: 50px;
-    border-bottom-left-radius: 50px;
-}
-
-.alert-left {
-    left: 0;
-    background: orange;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
+    transition: transform .3s;
 }

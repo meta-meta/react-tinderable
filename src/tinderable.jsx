@@ -70,7 +70,7 @@ var Card = React.createClass({
             this.props.classes
         ));
 
-        return <div style={style} className={classes}/>;
+        return <div style={style} className={classes}>{this.props.children}</div>;
     }
 });
 
@@ -90,6 +90,19 @@ var DraggableCard = React.createClass({
             animation: null,
             pressed: false
         };
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        if(nextProps.swipe !== this.props.swipe) {
+            if(nextProps.swipe === 'left') {
+                this.swipeLeft();
+            } else if(nextProps.swipe === 'right') {
+                this.swipeRight();
+            } /*else if(nextProps.swipe === 'undo') {
+                this.swipeUndo();
+            }*/
+
+        }
     },
 
     resetPosition: function() {
@@ -116,6 +129,31 @@ var DraggableCard = React.createClass({
         return container.offsetWidth - (this.state.x + (card.offsetWidth - this.props.pixelsToSwipeOff));
     },
 
+    swipeLeft: function() {
+        this.props.onOutScreenLeft();
+        this.setState({
+            animation: true,
+            x: this.state.x - 5 * this.props.pixelsToSwipeOff /* this is arbitrary but pixelsToSwipeOff cues us into the size of the card */
+        });
+    },
+
+    swipeRight: function() {
+        this.props.onOutScreenRight();
+        this.setState({
+            animation: true,
+            x: this.state.x + 5 * this.props.pixelsToSwipeOff /* this is arbitrary but pixelsToSwipeOff cues us into the size of the card */
+        });
+    },
+
+    //swipeUndo: function() {
+    //    this.props.onSwipeUndo();
+    //    this.setState({
+    //        animation: true
+    //    });
+    //
+    //    this.resetPosition();
+    //},
+
     panHandlers: {
         panstart: function() {
             this.setState({
@@ -127,19 +165,10 @@ var DraggableCard = React.createClass({
             });
         },
         panend: function() {
-            var xPos = this.state.x;
-
             if (this.state.x < -this.props.pixelsToSwipeOff) {
-                this.props.onOutScreenLeft();
-                this.setState({
-                    /* make dislike feel a little more forceful, multiplying by 3*/
-                    x: xPos - 3 * this.props.pixelsToSwipeOff /* this is arbitrary but pixelsToSwipeOff cues us into the size of the card */
-                });
+                this.swipeLeft();
             } else if (this.getDistanceToRightEdge() < 0) {
-                this.props.onOutScreenRight();
-                this.setState({
-                    x: xPos + 2 * this.props.pixelsToSwipeOff /* this is arbitrary but pixelsToSwipeOff cues us into the size of the card */
-                });
+                this.swipeRight();
             } else {
                 this.resetPosition();
             }
@@ -184,7 +213,8 @@ var DraggableCard = React.createClass({
 
     handlePress: function(ev) {
         this.setState({
-            pressed: true
+            pressed: true,
+            animation: true
         });
     },
 
@@ -272,7 +302,8 @@ var Tinderable = React.createClass({
         onNearLeft: React.PropTypes.func,
         onNearRight: React.PropTypes.func,
         stackSize: React.PropTypes.number,
-        yShift: React.PropTypes.number
+        yShift: React.PropTypes.number,
+        swipe: React.PropTypes.string
     },
 
     getDefaultProps: function () {
@@ -283,11 +314,11 @@ var Tinderable = React.createClass({
     },
 
     onSwipeLeft: function () {
-        setTimeout(this.props.onSwipeLeft, 300); // animation length for card to flick off screen
+        setTimeout(this.props.onSwipeLeft, this.props.animationLength); // animation length for card to flick off screen
     },
 
     onSwipeRight: function () {
-        setTimeout(this.props.onSwipeRight, 300); // animation length for card to flick off screen
+        setTimeout(this.props.onSwipeRight, this.props.animationLength); // animation length for card to flick off screen
     },
 
     render: function() {
@@ -305,7 +336,9 @@ var Tinderable = React.createClass({
                     zIndex: this.props.stackSize - index,
                     scale: 1 - (this.props.stackSize - (coll.length - index)) * 0.01,
                     yShift: (this.props.stackSize - (coll.length - index)) * this.props.yShift,
-                    key: 'card-' + c.id
+                    key: 'card-' + c.id,
+                    swipe: this.props.swipe,
+                    children: index === 0 ? this.props.children : null
                 };
 
                 var component = (index === 0) ?

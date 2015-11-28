@@ -6,6 +6,7 @@ var React = require('react'),
 var Slideshow = React.createClass({
     getInitialState: function() {
         return {
+            swipe: undefined,
             cards: [
                 {
                     title: 'Face Value',
@@ -51,7 +52,10 @@ var Slideshow = React.createClass({
         var self = this;
 
         function removeCard() {
-            self.setState({cards: self.state.cards.slice(1, self.state.cards.length)});
+            self.setState({
+                swipe: undefined,
+                cards: self.state.cards.slice(1, self.state.cards.length)
+            });
         }
 
         function onNearLeft(amt) {
@@ -72,8 +76,11 @@ var Slideshow = React.createClass({
                     onNearRight={onNearRight}
                     stackSize={5}
                     yShift={15}
-                />
-
+                    animationLength={300} //TODO: grab this from css animate class or make transition controlled inline style?
+                    swipe={this.state.swipe}
+                ><span>Testing</span></Tinderable>
+                <button disabled={this.state.swipe === 'left' || this.state.swipe === 'right'} onClick={function(){this.setState({swipe: 'left'});}.bind(this)}>Left</button>
+                <button disabled={this.state.swipe === 'left' || this.state.swipe === 'right'} onClick={function(){this.setState({swipe: 'right'});}.bind(this)}>Right</button>
             </div>
         );
     }
