@@ -51,7 +51,9 @@ var Slideshow = React.createClass({
         var self = this;
 
         function removeCard() {
-            self.setState({cards: self.state.cards.slice(0, self.state.cards.length - 1)});
+            setTimeout(function() {
+                self.setState({cards: self.state.cards.slice(1, self.state.cards.length)});
+            }, 300); // animation length for card to flick off screen
         }
 
         function onNearLeft(amt) {
@@ -70,6 +72,8 @@ var Slideshow = React.createClass({
                     onSwipeRight={removeCard}
                     onNearLeft={onNearLeft}
                     onNearRight={onNearRight}
+                    stackSize={5}
+                    yShift={15}
                 />
 
             </div>
