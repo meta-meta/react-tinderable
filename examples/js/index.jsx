@@ -51,9 +51,7 @@ var Slideshow = React.createClass({
         var self = this;
 
         function removeCard() {
-            setTimeout(function() {
-                self.setState({cards: self.state.cards.slice(1, self.state.cards.length)});
-            }, 300); // animation length for card to flick off screen
+            self.setState({cards: self.state.cards.slice(1, self.state.cards.length)});
         }
 
         function onNearLeft(amt) {
