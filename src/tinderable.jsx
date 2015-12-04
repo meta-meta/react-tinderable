@@ -188,7 +188,7 @@ var DraggableCard = React.createClass({
             var pointerPosition = ev.center;
             var rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
             var rectCenter = {x: rect.left + rect.width / 2, y: rect.top + rect.height / 2};
-            nextState.rotation = ((pointerPosition.y - rectCenter.y) / rect.height) * (ev.deltaX / rect.width) * -3;
+            nextState.rotation = ((pointerPosition.y - rectCenter.y) / rect.height) * (ev.deltaX / rect.width) * -this.props.rotationMultiplier;
 
             function constrain(n) {
                 return Math.min(1, 1 - n);
@@ -318,14 +318,16 @@ var Tinderable = React.createClass({
         yShift: React.PropTypes.number,
         scale: React.PropTypes.number,
         swipe: React.PropTypes.string,
-        isTopCardSeparate: React.PropTypes.bool
+        isTopCardSeparate: React.PropTypes.bool,
+        rotationMultiplier: React.PropTypes.number
     },
 
     getDefaultProps: function () {
         return {
             stackSize: 2,
             yShift: 5,
-            scale: 0.02
+            scale: 0.02,
+            rotationMultiplier: 2.5
         }
     },
 
@@ -356,6 +358,7 @@ var Tinderable = React.createClass({
                     yShift: ignoreTransform ? 0 : (this.props.stackSize - (coll.length - index)) * this.props.yShift,
                     key: 'card-' + c.id,
                     swipe: this.props.swipe,
+                    rotationMultiplier: this.props.rotationMultiplier,
                     children: index === 0 ? this.props.children : null
                 };
 
