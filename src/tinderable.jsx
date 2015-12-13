@@ -90,7 +90,8 @@ var DraggableCard = React.createClass({
                 x: 0,
                 y: 0
             },
-            animation: null,
+            didMount: false,
+            animation: true,
             pressed: false
         };
     },
@@ -261,6 +262,10 @@ var DraggableCard = React.createClass({
             }
         }, this);
 
+        setTimeout(function() {
+            this.setState({didMount: true});
+        }.bind(this), 1);
+
         this.resetPosition();
         window.addEventListener('resize', this.resetPosition);
     },
@@ -300,7 +305,7 @@ var DraggableCard = React.createClass({
         var classes = {
             animate: this.state.animation,
             pressed: this.state.pressed,
-            'card-draggable': true
+            'card-draggable': this.state.didMount
         };
 
         return (<Card {...this.props}
